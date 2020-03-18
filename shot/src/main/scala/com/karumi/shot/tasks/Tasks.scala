@@ -55,15 +55,11 @@ class ExecuteScreenshotTests extends ShotTask {
     if (recordScreenshots) {
       shot.recordScreenshots(appId, buildFolder, projectFolder, projectName)
     } else {
-      val result = shot.verifyScreenshots(appId,
+      shot.verifyScreenshots(appId,
                                           buildFolder,
                                           projectFolder,
                                           project.getName,
                                           printBase64)
-      if (result.hasErrors) {
-        throw new GradleException(
-          "Screenshots comparision fail. Review the execution report to see what's broken your build.")
-      }
     }
   }
 }

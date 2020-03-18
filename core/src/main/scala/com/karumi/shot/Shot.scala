@@ -52,12 +52,12 @@ class Shot(adb: Adb,
     screenshotsSaver.saveRecordedScreenshots(projectFolder, screenshots)
     screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
       projectFolder,
-      buildFolder + Config.recordingReportFolder + "/images/recorded/")
-    console.show(
-      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
-    reporter.generateRecordReport(appId, screenshots, buildFolder)
-    console.show(
-      "🤓  You can review the execution report here: " + buildFolder + Config.recordingReportFolder + "/index.html")
+      buildFolder + Config.verificationReportFolder + "/")
+//    console.show(
+//      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
+//    reporter.generateRecordReport(appId, screenshots, buildFolder)
+//    console.show(
+//      "🤓  You can review the execution report here: " + buildFolder + Config.recordingReportFolder + "/index.html")
     removeProjectTemporalScreenshotsFolder(projectFolder)
   }
 
@@ -66,34 +66,19 @@ class Shot(adb: Adb,
       buildFolder: Folder,
       projectFolder: Folder,
       projectName: String,
-      shouldPrintBase64Error: Boolean): ScreenshotsComparisionResult = {
-    console.show("🔎  Comparing screenshots with previous ones.")
+      shouldPrintBase64Error: Boolean) = {
+    console.show("💾  Saving screenshots.")
     val screenshots = readScreenshotsMetadata(projectFolder, projectName)
-    val newScreenshotsVerificationReportFolder = buildFolder + Config.verificationReportFolder + "/images/"
-    screenshotsSaver.saveTemporalScreenshots(
-      screenshots,
-      projectName,
-      newScreenshotsVerificationReportFolder)
-    val comparision = screenshotsComparator.compare(screenshots)
-    val updatedComparision = screenshotsDiffGenerator.generateDiffs(
-      comparision,
-      newScreenshotsVerificationReportFolder,
-      shouldPrintBase64Error)
+//    screenshotsSaver.saveRecordedScreenshots(projectFolder, screenshots)
     screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
       projectFolder,
-      buildFolder + Config.verificationReportFolder + "/images/recorded/")
-
-    if (updatedComparision.hasErrors) {
-      consoleReporter.showErrors(updatedComparision,
-                                 newScreenshotsVerificationReportFolder)
-    } else {
-      console.showSuccess("✅  Yeah!!! Your tests are passing.")
-    }
+      buildFolder + Config.recordingReportFolder + "/")
+    //    console.show(
+    //      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
+    //    reporter.generateRecordReport(appId, screenshots, buildFolder)
+    //    console.show(
+    //      "🤓  You can review the execution report here: " + buildFolder + Config.recordingReportFolder + "/index.html")
     removeProjectTemporalScreenshotsFolder(projectFolder)
-    reporter.generateVerificationReport(appId, comparision, buildFolder)
-    console.show(
-      "🤓  You can review the execution report here: " + buildFolder + Config.verificationReportFolder + "/index.html")
-    comparision
   }
 
   def removeScreenshots(appId: Option[AppId]): Unit =

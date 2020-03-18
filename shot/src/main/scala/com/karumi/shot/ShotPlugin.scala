@@ -71,9 +71,10 @@ class ShotPlugin extends Plugin[Project] {
       .create(ExecuteScreenshotTests.name, classOf[ExecuteScreenshotTests])
     val instrumentationTask = extension.getOptionInstrumentationTestTask
       .getOrElse(Config.defaultInstrumentationTestTask)
-    if (extension.runInstrumentation) {
+    executeScreenshot.dependsOn(downloadScreenshots)
+
+    if (false) {
       executeScreenshot.dependsOn(instrumentationTask)
-      executeScreenshot.dependsOn(downloadScreenshots)
       executeScreenshot.dependsOn(removeScreenshots)
       downloadScreenshots.mustRunAfter(instrumentationTask)
       removeScreenshots.mustRunAfter(downloadScreenshots)
