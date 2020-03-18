@@ -41,8 +41,6 @@ class ShotSpec
   before {
     shot = new Shot(adb,
                     files,
-                    screenshotsComparator,
-                    screenshotsDiffGenerator,
                     screenshotsSaver,
                     console,
                     reporter,

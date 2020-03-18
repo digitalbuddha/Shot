@@ -1,15 +1,12 @@
 package com.karumi.shot.tasks
 
 import com.karumi.shot.android.Adb
-import com.karumi.shot.base64.Base64Encoder
+import com.karumi.shot.domain.Config
 import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
-import com.karumi.shot.screenshots.{
-  ScreenshotsComparator,
-  ScreenshotsDiffGenerator,
-  ScreenshotsSaver
-}
+import com.karumi.shot.screenshots.{ScreenshotsComparator, ScreenshotsDiffGenerator, ScreenshotsSaver}
 import com.karumi.shot.ui.Console
 import com.karumi.shot.{Files, Shot, ShotExtension}
+import org.apache.tools.ant.taskdefs.ExecTask
 import org.gradle.api.{DefaultTask, GradleException}
 import org.gradle.api.tasks.TaskAction
 
@@ -20,8 +17,6 @@ abstract class ShotTask() extends DefaultTask {
     new Shot(
       new Adb,
       new Files,
-      new ScreenshotsComparator,
-      new ScreenshotsDiffGenerator(new Base64Encoder),
       new ScreenshotsSaver,
       console,
       new ExecutionReporter,
@@ -34,8 +29,23 @@ abstract class ShotTask() extends DefaultTask {
 
 }
 
+abstract class DiffTask() extends ExecTask {
+
+  private val console = new Console
+  protected val shot: Shot =
+    new Shot(
+      new Adb,
+      new Files,
+      new ScreenshotsSaver,
+      console,
+      new ExecutionReporter,
+      new ConsoleReporter(console)
+    )
+
+}
+
 object ExecuteScreenshotTests {
-  val name = "executeScreenshotTests"
+  val name = "pullShots"
 }
 
 class ExecuteScreenshotTests extends ShotTask {
@@ -56,13 +66,35 @@ class ExecuteScreenshotTests extends ShotTask {
       shot.recordScreenshots(appId, buildFolder, projectFolder, projectName)
     } else {
       shot.verifyScreenshots(appId,
-                                          buildFolder,
-                                          projectFolder,
-                                          project.getName,
-                                          printBase64)
+        buildFolder,
+        projectFolder,
+        project.getName,
+        printBase64)
     }
   }
 }
+
+object RecordScreenshotTests {
+  val name = "recordShots"
+}
+
+class RecordScreenshotTests extends ShotTask {
+
+  setDescription(
+    "Records the user interface tests screenshots. If you execute this task using \"-Precord\" param the screenshot will be regenerated.")
+
+  @TaskAction
+  def executeScreenshotTests(): Unit = {
+    val project = getProject
+    val projectFolder = project.getProjectDir.getAbsolutePath
+    val projectName = project.getName
+    val buildFolder = project.getBuildDir.getAbsolutePath
+    val appId = shotExtension.getAppId
+
+      shot.recordScreenshots(appId, buildFolder, projectFolder, projectName)
+  }
+}
+
 
 object DownloadScreenshotsTask {
   val name = "downloadScreenshots"
@@ -81,6 +113,7 @@ class DownloadScreenshotsTask extends ShotTask {
   }
 }
 
+
 object RemoveScreenshotsTask {
   val name = "removeScreenshots"
 }
@@ -94,5 +127,23 @@ class RemoveScreenshotsTask extends ShotTask {
   def clearScreenshots(): Unit = {
     val appId = shotExtension.getOptionAppId
     shot.removeScreenshots(appId)
+  }
+}
+
+object CompareScreenshotTask {
+  val name = "shots"
+}
+
+class CompareScreenshotTask extends ShotTask {
+
+  setDescription(
+    "Removes the screenshots recorded during the tests execution from the Android device where the tests were executed.")
+
+  @TaskAction
+  def compareScreenshots(): Unit = {
+    val project = getProject
+    val buildFolder = project.getBuildDir.getAbsolutePath
+    val diffFolder = buildFolder + Config.reportFolder
+    shot.executeDiffer(diffFolder, project.getProjectDir.getAbsolutePath)
   }
 }

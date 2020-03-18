@@ -8,8 +8,6 @@ import com.karumi.shot.domain._
 import com.karumi.shot.domain.model.{AppId, Folder, ScreenshotsSuite}
 import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
 import com.karumi.shot.screenshots.{
-  ScreenshotsComparator,
-  ScreenshotsDiffGenerator,
   ScreenshotsSaver
 }
 import com.karumi.shot.ui.Console
@@ -24,8 +22,6 @@ object Shot {
 
 class Shot(adb: Adb,
            files: Files,
-           screenshotsComparator: ScreenshotsComparator,
-           screenshotsDiffGenerator: ScreenshotsDiffGenerator,
            screenshotsSaver: ScreenshotsSaver,
            console: Console,
            reporter: ExecutionReporter,
@@ -50,9 +46,9 @@ class Shot(adb: Adb,
     console.show("💾  Saving screenshots.")
     val screenshots = readScreenshotsMetadata(projectFolder, projectName)
     screenshotsSaver.saveRecordedScreenshots(projectFolder, screenshots)
-    screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
-      projectFolder,
-      buildFolder + Config.verificationReportFolder + "/")
+//    screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
+//      projectFolder,
+//      buildFolder + Config.verificationReportFolder + "/")
 //    console.show(
 //      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
 //    reporter.generateRecordReport(appId, screenshots, buildFolder)
@@ -72,7 +68,7 @@ class Shot(adb: Adb,
 //    screenshotsSaver.saveRecordedScreenshots(projectFolder, screenshots)
     screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
       projectFolder,
-      buildFolder + Config.recordingReportFolder + "/")
+      buildFolder + Config.verificationReportFolder + "/")
     //    console.show(
     //      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
     //    reporter.generateRecordReport(appId, screenshots, buildFolder)
@@ -96,6 +92,13 @@ class Shot(adb: Adb,
     device =>
       adb.clearScreenshots(device, appId)
   }
+
+
+  def executeDiffer(differDir: String,projectFolder: String): Unit = {
+    val screenshotsFolder = projectFolder + Config.screenshotsFolderName
+    adb.executeDiffer (differDir,screenshotsFolder)
+  }
+
 
   private def createScreenshotsFolderIfDoesNotExist(screenshotsFolder: AppId) = {
     val folder = new File(screenshotsFolder)

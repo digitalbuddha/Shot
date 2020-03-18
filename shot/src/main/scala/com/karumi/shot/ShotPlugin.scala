@@ -12,7 +12,9 @@ import com.karumi.shot.screenshots.{
 import com.karumi.shot.tasks.{
   DownloadScreenshotsTask,
   ExecuteScreenshotTests,
-  RemoveScreenshotsTask
+  RecordScreenshotTests,
+  RemoveScreenshotsTask,
+  CompareScreenshotTask
 }
 import com.karumi.shot.ui.Console
 import org.gradle.api.artifacts.{
@@ -36,8 +38,6 @@ class ShotPlugin extends Plugin[Project] {
     new Shot(
       new Adb,
       new Files,
-      new ScreenshotsComparator,
-      new ScreenshotsDiffGenerator(new Base64Encoder),
       new ScreenshotsSaver,
       console,
       new ExecutionReporter,
@@ -65,20 +65,28 @@ class ShotPlugin extends Plugin[Project] {
       project.getExtensions.getByType[ShotExtension](classOf[ShotExtension])
     val removeScreenshots = project.getTasks
       .create(RemoveScreenshotsTask.name, classOf[RemoveScreenshotsTask])
+    val compareScreenshots = project.getTasks
+      .create(CompareScreenshotTask.name, classOf[CompareScreenshotTask])
     val downloadScreenshots = project.getTasks
       .create(DownloadScreenshotsTask.name, classOf[DownloadScreenshotsTask])
     val executeScreenshot = project.getTasks
       .create(ExecuteScreenshotTests.name, classOf[ExecuteScreenshotTests])
+    val recordShots = project.getTasks
+        .create(RecordScreenshotTests.name, classOf[RecordScreenshotTests])
     val instrumentationTask = extension.getOptionInstrumentationTestTask
       .getOrElse(Config.defaultInstrumentationTestTask)
-    executeScreenshot.dependsOn(downloadScreenshots)
 
-    if (false) {
-      executeScreenshot.dependsOn(instrumentationTask)
-      executeScreenshot.dependsOn(removeScreenshots)
-      downloadScreenshots.mustRunAfter(instrumentationTask)
-      removeScreenshots.mustRunAfter(downloadScreenshots)
-    }
+    executeScreenshot.dependsOn(downloadScreenshots)
+    compareScreenshots.dependsOn(executeScreenshot)
+
+    recordShots.dependsOn(downloadScreenshots)
+
+    //    if (false) {
+//      executeScreenshot.dependsOn(instrumentationTask)
+//      executeScreenshot.dependsOn(removeScreenshots)
+//      downloadScreenshots.mustRunAfter(instrumentationTask)
+//      removeScreenshots.mustRunAfter(downloadScreenshots)
+//    }
   }
 
   private def addExtensions(project: Project): Unit = {
