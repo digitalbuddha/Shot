@@ -6,7 +6,7 @@ import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
 import com.karumi.shot.screenshots.ScreenshotsSaver
 import com.karumi.shot.tasks.{
   DownloadScreenshotsTask,
-  ExecuteScreenshotTests,
+  PullVerifyScreenshots,
   RecordScreenshotTests,
   RemoveScreenshotsTask,
   CompareScreenshotTask
@@ -63,21 +63,22 @@ class ShotPlugin extends Plugin[Project] {
       .create(CompareScreenshotTask.name, classOf[CompareScreenshotTask])
     val downloadScreenshots = project.getTasks
       .create(DownloadScreenshotsTask.name, classOf[DownloadScreenshotsTask])
-    val executeScreenshot = project.getTasks
-      .create(ExecuteScreenshotTests.name, classOf[ExecuteScreenshotTests])
+    val pullVerifyScreenshots = project.getTasks
+      .create(PullVerifyScreenshots.name, classOf[PullVerifyScreenshots])
     val recordShots = project.getTasks
         .create(RecordScreenshotTests.name, classOf[RecordScreenshotTests])
-    val instrumentationTask = extension.getOptionInstrumentationTestTask
-      .getOrElse(Config.defaultInstrumentationTestTask)
 
-    executeScreenshot.dependsOn(downloadScreenshots)
-    compareScreenshots.dependsOn(executeScreenshot)
+
+//    pullVerifyScreenshots.dependsOn(downloadScreenshots)
 
     recordShots.dependsOn(downloadScreenshots)
 
+    compareScreenshots.dependsOn(pullVerifyScreenshots)
+
+
     //    if (false) {
-//      executeScreenshot.dependsOn(instrumentationTask)
-//      executeScreenshot.dependsOn(removeScreenshots)
+//      pullVerifyScreenshots.dependsOn(instrumentationTask)
+//      pullVerifyScreenshots.dependsOn(removeScreenshots)
 //      downloadScreenshots.mustRunAfter(instrumentationTask)
 //      removeScreenshots.mustRunAfter(downloadScreenshots)
 //    }

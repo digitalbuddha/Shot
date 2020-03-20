@@ -28,8 +28,6 @@ class ShotSpec
   private val adb = mock[Adb]
   private val files = mock[Files]
   private val console = mock[Console]
-  private val screenshotsComparator = mock[ScreenshotsComparator]
-  private val screenshotsDiffGenerator = mock[ScreenshotsDiffGenerator]
   private val screenshotsSaver = mock[ScreenshotsSaver]
   private val reporter = mock[ExecutionReporter]
   private val consoleReporter = mock[ConsoleReporter]

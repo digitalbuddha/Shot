@@ -28,33 +28,27 @@ abstract class ShotTask() extends DefaultTask {
 
 }
 
-object ExecuteScreenshotTests {
+object PullVerifyScreenshots {
   val name = "pullShots"
 }
 
-class ExecuteScreenshotTests extends ShotTask {
+class PullVerifyScreenshots extends ShotTask {
 
   setDescription(
     "Pulls screenshots from device to be verified")
 
   @TaskAction
-  def executeScreenshotTests(): Unit = {
+  def pullVerifyScreenshots(): Unit = {
     val project = getProject
-    val recordScreenshots = project.hasProperty("record")
     val printBase64 = project.hasProperty("printBase64")
     val projectFolder = project.getProjectDir.getAbsolutePath
-    val projectName = project.getName
     val buildFolder = project.getBuildDir.getAbsolutePath
     val appId = shotExtension.getAppId
-    if (recordScreenshots) {
-      shot.recordScreenshots(appId, buildFolder, projectFolder, projectName)
-    } else {
-      shot.verifyScreenshots(appId,
+      shot.getVerifyScreenshots(appId,
         buildFolder,
         projectFolder,
         project.getName,
         printBase64)
-    }
   }
 }
 

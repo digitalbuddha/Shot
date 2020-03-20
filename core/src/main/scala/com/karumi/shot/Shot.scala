@@ -57,24 +57,23 @@ class Shot(adb: Adb,
     removeProjectTemporalScreenshotsFolder(projectFolder)
   }
 
-  def verifyScreenshots(
+  def getVerifyScreenshots(
       appId: AppId,
       buildFolder: Folder,
       projectFolder: Folder,
       projectName: String,
       shouldPrintBase64Error: Boolean) = {
     console.show("💾  Saving screenshots.")
-    val screenshots = readScreenshotsMetadata(projectFolder, projectName)
-//    screenshotsSaver.saveRecordedScreenshots(projectFolder, screenshots)
-    screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
-      projectFolder,
-      buildFolder + Config.verificationReportFolder + "/")
+    val verificationFolder = buildFolder + Config.verificationReportFolder + "/"
+    downloadScreenshots(verificationFolder, Option(appId))
+    val screenshots = readScreenshotsMetadata(verificationFolder, projectName)
+    screenshotsSaver.saveRecordedScreenshots(verificationFolder, screenshots)
     //    console.show(
     //      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
     //    reporter.generateRecordReport(appId, screenshots, buildFolder)
     //    console.show(
     //      "🤓  You can review the execution report here: " + buildFolder + Config.recordingReportFolder + "/index.html")
-    removeProjectTemporalScreenshotsFolder(projectFolder)
+    removeProjectTemporalScreenshotsFolder(verificationFolder)
   }
 
   def removeScreenshots(appId: Option[AppId]): Unit =

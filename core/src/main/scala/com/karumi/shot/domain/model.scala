@@ -29,7 +29,7 @@ object Config {
   val screenshotsTemporalRootPath: FilePath = "/tmp/shot/screenshot/"
   val defaultInstrumentationTestTask: String = "connectedAndroidTest"
   val defaultPackageTestApkTask: String = "packageDebugAndroidTest"
-  val reportFolder: String = "/reports/blink-diff/bin"
+  val reportFolder: String = "/reports"
   val differFolder: String = "/differ/blink-diff/bin"
   val verificationReportFolder: String = reportFolder + "/verification"
 }
