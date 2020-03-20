@@ -94,9 +94,10 @@ class Shot(adb: Adb,
   }
 
 
-  def executeDiffer(differDir: String,projectFolder: String): Unit = {
+  def executeDiffer(differDir: String,projectFolder: String, reportFolder:String): Unit = {
     val screenshotsFolder = projectFolder + Config.screenshotsFolderName
-    adb.executeDiffer (differDir,screenshotsFolder)
+    console.show("report folder is:"+ reportFolder)
+    adb.executeDiffer (differDir,screenshotsFolder, reportFolder)
   }
 
 

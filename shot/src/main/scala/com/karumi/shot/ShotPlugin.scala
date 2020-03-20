@@ -1,14 +1,9 @@
 package com.karumi.shot
 
 import com.karumi.shot.android.Adb
-import com.karumi.shot.base64.Base64Encoder
 import com.karumi.shot.domain.Config
 import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
-import com.karumi.shot.screenshots.{
-  ScreenshotsComparator,
-  ScreenshotsDiffGenerator,
-  ScreenshotsSaver
-}
+import com.karumi.shot.screenshots.ScreenshotsSaver
 import com.karumi.shot.tasks.{
   DownloadScreenshotsTask,
   ExecuteScreenshotTests,
@@ -23,8 +18,7 @@ import org.gradle.api.artifacts.{
   ResolvableDependencies
 }
 import org.gradle.api.{Plugin, Project}
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.model.build.BuildEnvironment
+
 
 object ShotPlugin {
   private val minGradleVersionSupportedMajorNumber = 3

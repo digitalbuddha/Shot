@@ -5,11 +5,7 @@ import com.karumi.shot.domain.Config
 import com.karumi.shot.domain.model.AppId
 import com.karumi.shot.mothers.AppIdMother
 import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
-import com.karumi.shot.screenshots.{
-  ScreenshotsComparator,
-  ScreenshotsDiffGenerator,
-  ScreenshotsSaver
-}
+import com.karumi.shot.screenshots.ScreenshotsSaver
 import com.karumi.shot.ui.Console
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
