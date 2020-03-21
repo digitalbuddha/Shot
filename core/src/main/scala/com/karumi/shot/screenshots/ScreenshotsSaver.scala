@@ -14,29 +14,8 @@ class ScreenshotsSaver {
     saveScreenshots(screenshots, projectFolder + Config.screenshotsFolderName)
   }
 
-  def saveTemporalScreenshots(screenshots: ScreenshotsSuite,
-                              projectName: String,
-                              reportFolder: String) = {
-    deleteOldTemporalScreenshots(projectName)
-    saveScreenshots(screenshots,
-                    Config.screenshotsTemporalRootPath + projectName + "/")
-    deleteFolder(reportFolder)
-    saveScreenshots(screenshots, reportFolder)
-  }
-  def copyRecordedScreenshotsToTheReportFolder(projectFolder: Folder,
-                                               destinyFolder: Folder) = {
-    val recordedScreenshotsFolder = projectFolder + Config.screenshotsFolderName
-    FileUtils.copyDirectory(new File(recordedScreenshotsFolder),
-                            new File(destinyFolder))
-    deleteFolder(destinyFolder)
-  }
-
   private def deleteOldScreenshots(projectFolder: Folder) = {
     deleteFolder(projectFolder + Config.screenshotsFolderName)
-  }
-
-  private def deleteOldTemporalScreenshots(projectName: String): Unit = {
-    deleteFolder(Config.screenshotsTemporalRootPath + projectName + "/")
   }
 
   private def deleteFolder(path: String): Unit = {

@@ -2,7 +2,6 @@ package com.karumi.shot.domain
 
 import com.karumi.shot.domain.model.{
   FilePath,
-  ScreenshotComparisionErrors,
   ScreenshotsSuite
 }
 
@@ -11,7 +10,6 @@ object model {
   type FilePath = String
   type Folder = String
   type AppId = String
-  type ScreenshotComparisionErrors = Seq[ScreenshotComparisionError]
 }
 
 object Config {
@@ -49,31 +47,8 @@ case class Screenshot(name: String,
     temporalScreenshotPath.substring(
       temporalScreenshotPath.lastIndexOf("/") + 1,
       temporalScreenshotPath.length)
-
-  def getDiffScreenshotPath(basePath: String): String =
-    s"${basePath}diff_$fileName"
-
 }
 
 case class Dimension(width: Int, height: Int) {
   override def toString: FilePath = width + "x" + height
-}
-
-sealed trait ScreenshotComparisionError
-
-case class ScreenshotNotFound(screenshot: Screenshot)
-    extends ScreenshotComparisionError
-
-case class DifferentScreenshots(screenshot: Screenshot,
-                                base64Diff: Option[String] = None)
-    extends ScreenshotComparisionError
-
-case class DifferentImageDimensions(screenshot: Screenshot,
-                                    originalDimension: Dimension,
-                                    newDimension: Dimension)
-    extends ScreenshotComparisionError
-
-case class ScreenshotsComparisionResult(errors: ScreenshotComparisionErrors,
-                                        screenshots: ScreenshotsSuite) {
-  val hasErrors: Boolean = errors.nonEmpty
 }

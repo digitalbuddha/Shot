@@ -1,12 +1,11 @@
 package com.karumi.shot.tasks
 
-import com.karumi.shot.android.Adb
+import com.karumi.shot.android.Commander
 import com.karumi.shot.domain.Config
-import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
 import com.karumi.shot.screenshots.ScreenshotsSaver
 import com.karumi.shot.ui.Console
 import com.karumi.shot.{Files, Shot, ShotExtension}
-import org.gradle.api.{DefaultTask}
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 abstract class ShotTask() extends DefaultTask {
@@ -14,12 +13,10 @@ abstract class ShotTask() extends DefaultTask {
   private val console = new Console
   protected val shot: Shot =
     new Shot(
-      new Adb,
+      new Commander,
       new Files,
       new ScreenshotsSaver,
-      console,
-      new ExecutionReporter,
-      new ConsoleReporter(console)
+      console
     )
   protected val shotExtension: ShotExtension =
     getProject.getExtensions.findByType(classOf[ShotExtension])
@@ -44,7 +41,7 @@ class PullVerifyScreenshots extends ShotTask {
     val projectFolder = project.getProjectDir.getAbsolutePath
     val buildFolder = project.getBuildDir.getAbsolutePath
     val appId = shotExtension.getAppId
-      shot.getVerifyScreenshots(appId,
+      shot.downloadNewScreenshots(appId,
         buildFolder,
         projectFolder,
         project.getName,
@@ -69,27 +66,13 @@ class RecordScreenshotTests extends ShotTask {
     val buildFolder = project.getBuildDir.getAbsolutePath
     val appId = shotExtension.getAppId
 
+    val optionAppId = shotExtension.getOptionAppId
+    shot.downloadScreenshots(projectFolder, optionAppId)
     shot.recordScreenshots(appId, buildFolder, projectFolder, projectName)
   }
 }
 
 
-object DownloadScreenshotsTask {
-  val name = "downloadScreenshots"
-}
-
-class DownloadScreenshotsTask extends ShotTask {
-
-  setDescription(
-    "Retrieves the screenshots stored into the Android device where the tests were executed.")
-
-  @TaskAction
-  def downloadScreenshots(): Unit = {
-    val projectFolder = getProject.getProjectDir.getAbsolutePath
-    val appId = shotExtension.getOptionAppId
-    shot.downloadScreenshots(projectFolder, appId)
-  }
-}
 
 
 object RemoveScreenshotsTask {

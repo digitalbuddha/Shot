@@ -3,13 +3,10 @@ package com.karumi.shot
 import java.io.File
 import java.nio.file.Paths
 
-import com.karumi.shot.android.Adb
+import com.karumi.shot.android.Commander
 import com.karumi.shot.domain._
 import com.karumi.shot.domain.model.{AppId, Folder, ScreenshotsSuite}
-import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
-import com.karumi.shot.screenshots.{
-  ScreenshotsSaver
-}
+import com.karumi.shot.screenshots.ScreenshotsSaver
 import com.karumi.shot.ui.Console
 import com.karumi.shot.xml.ScreenshotsSuiteXmlParser._
 import org.apache.commons.io.FileUtils
@@ -20,24 +17,13 @@ object Shot {
     "🤔  Error found executing screenshot tests. The appId param is not configured properly. You should configure the appId following the plugin instructions you can find at https://github.com/karumi/shot"
 }
 
-class Shot(adb: Adb,
+class Shot(adb: Commander,
            files: Files,
            screenshotsSaver: ScreenshotsSaver,
-           console: Console,
-           reporter: ExecutionReporter,
-           consoleReporter: ConsoleReporter) {
+           console: Console) {
 
   import Shot._
 
-  def configureAdbPath(adbPath: Folder): Unit = {
-    Adb.adbBinaryPath = adbPath
-  }
-
-  def downloadScreenshots(projectFolder: Folder, appId: Option[AppId]): Unit =
-    executeIfAppIdIsValid(appId) { applicationId =>
-      console.show("⬇️  Pulling screenshots from your connected devices!")
-      pullScreenshots(projectFolder, applicationId)
-    }
 
   def recordScreenshots(appId: AppId,
                         buildFolder: Folder,
@@ -46,18 +32,10 @@ class Shot(adb: Adb,
     console.show("💾  Saving screenshots.")
     val screenshots = readScreenshotsMetadata(projectFolder, projectName)
     screenshotsSaver.saveRecordedScreenshots(projectFolder, screenshots)
-//    screenshotsSaver.copyRecordedScreenshotsToTheReportFolder(
-//      projectFolder,
-//      buildFolder + Config.verificationReportFolder + "/")
-//    console.show(
-//      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
-//    reporter.generateRecordReport(appId, screenshots, buildFolder)
-//    console.show(
-//      "🤓  You can review the execution report here: " + buildFolder + Config.recordingReportFolder + "/index.html")
     removeProjectTemporalScreenshotsFolder(projectFolder)
   }
 
-  def getVerifyScreenshots(
+  def downloadNewScreenshots(
       appId: AppId,
       buildFolder: Folder,
       projectFolder: Folder,
@@ -66,20 +44,30 @@ class Shot(adb: Adb,
     console.show("💾  Saving screenshots.")
     val verificationFolder = buildFolder + Config.verificationReportFolder + "/"
     downloadScreenshots(verificationFolder, Option(appId))
+
     val screenshots = readScreenshotsMetadata(verificationFolder, projectName)
     screenshotsSaver.saveRecordedScreenshots(verificationFolder, screenshots)
-    //    console.show(
-    //      "😃  Screenshots recorded and saved at: " + projectFolder + Config.screenshotsFolderName)
-    //    reporter.generateRecordReport(appId, screenshots, buildFolder)
-    //    console.show(
-    //      "🤓  You can review the execution report here: " + buildFolder + Config.recordingReportFolder + "/index.html")
     removeProjectTemporalScreenshotsFolder(verificationFolder)
   }
+
+
+  def downloadScreenshots(projectFolder: Folder, appId: Option[AppId]): Unit =
+    executeIfAppIdIsValid(appId) { applicationId =>
+      console.show("⬇️  Pulling screenshots from your connected devices!")
+      pullScreenshots(projectFolder, applicationId)
+    }
+
 
   def removeScreenshots(appId: Option[AppId]): Unit =
     executeIfAppIdIsValid(appId) { applicationId =>
       clearScreenshots(applicationId)
     }
+
+  def executeDiffer(differDir: String,projectFolder: String, reportFolder:String): Unit = {
+    val screenshotsFolder = projectFolder + Config.screenshotsFolderName
+    console.show("report folder is:"+ reportFolder)
+    adb.executeDiffer (differDir,screenshotsFolder, reportFolder)
+  }
 
   private def executeIfAppIdIsValid(appId: Option[AppId])(f: AppId => Unit) =
     appId match {
@@ -91,14 +79,6 @@ class Shot(adb: Adb,
     device =>
       adb.clearScreenshots(device, appId)
   }
-
-
-  def executeDiffer(differDir: String,projectFolder: String, reportFolder:String): Unit = {
-    val screenshotsFolder = projectFolder + Config.screenshotsFolderName
-    console.show("report folder is:"+ reportFolder)
-    adb.executeDiffer (differDir,screenshotsFolder, reportFolder)
-  }
-
 
   private def createScreenshotsFolderIfDoesNotExist(screenshotsFolder: AppId) = {
     val folder = new File(screenshotsFolder)

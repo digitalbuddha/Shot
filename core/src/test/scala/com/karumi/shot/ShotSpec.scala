@@ -1,10 +1,9 @@
 package com.karumi.shot
 
-import com.karumi.shot.android.Adb
+import com.karumi.shot.android.Commander
 import com.karumi.shot.domain.Config
 import com.karumi.shot.domain.model.AppId
 import com.karumi.shot.mothers.AppIdMother
-import com.karumi.shot.reports.{ConsoleReporter, ExecutionReporter}
 import com.karumi.shot.screenshots.ScreenshotsSaver
 import com.karumi.shot.ui.Console
 import org.scalamock.scalatest.MockFactory
@@ -16,7 +15,7 @@ object ShotSpec {
 }
 
 class ShotSpec
-    extends FlatSpec
+  extends FlatSpec
     with Matchers
     with BeforeAndAfter
     with MockFactory
@@ -25,20 +24,16 @@ class ShotSpec
   import ShotSpec._
 
   private var shot: Shot = _
-  private val adb = mock[Adb]
+  private val adb = mock[Commander]
   private val files = mock[Files]
   private val console = mock[Console]
   private val screenshotsSaver = mock[ScreenshotsSaver]
-  private val reporter = mock[ExecutionReporter]
-  private val consoleReporter = mock[ConsoleReporter]
 
   before {
     shot = new Shot(adb,
-                    files,
-                    screenshotsSaver,
-                    console,
-                    reporter,
-                    consoleReporter)
+      files,
+      screenshotsSaver,
+      console)
   }
 
   "Shot" should "should delegate screenshots cleaning to Adb" in {
@@ -71,9 +66,9 @@ class ShotSpec
   it should "configure adb path" in {
     val anyAdbPath = "/Library/androidsdk/bin/adb"
 
-    shot.configureAdbPath(anyAdbPath)
+    Commander.adbBinaryPath = anyAdbPath
 
-    Adb.adbBinaryPath shouldBe anyAdbPath
+    Commander.adbBinaryPath shouldBe anyAdbPath
   }
 
   it should "show an error if the app ID is not properly configured when cleaning screenshots" in {

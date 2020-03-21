@@ -1,27 +1,18 @@
-# ![Karumi logo][karumilogo]Shot [![Build Status](https://app.bitrise.io/app/c7c358c5be663f7c/status.svg?token=SOM_wLR4WZScWxIYKeMV3A&branch=master)](https://app.bitrise.io/app/c7c358c5be663f7c)
 
-Shot is a [Gradle](https://gradle.org/) plugin that simplifies the execution of screenshot tests using [Screenshot Tests For Android by Facebook](http://facebook.github.io/screenshot-tests-for-android/).
+Shots is a [Gradle](https://gradle.org/) plugin that simplifies the execution of screenshot tests using [Screenshot Tests For Android by Facebook](http://facebook.github.io/screenshot-tests-for-android/). It is a fork of the http://github.com/karumi/shot
 
 ## What is this?
 
 ``Shot`` is a Gradle plugin thought to run screenshot tests for Android using the [screenshot testing Facebook SDK](http://facebook.github.io/screenshot-tests-for-android/).
 
-**Since Shot 0.3.0 a simple but powerful HTML report is generated after every verification or screenshots recording execution. Here you have an example of the [recording](./art/recordReport.png) and [verification](./art/verificationReport.png) report generated.** 
 
-![smallVerificationReport1](./art/smallVerificationReport1.png)
-![smallVerificationReport2](./art/smallVerificationReport2.png)
 
-Record your screenshots executing ``./gradlew executeScreenshotTests -Precord``
 
-![recording](./art/recording.gif)
+Record your screenshots executing ``./gradlew recordShots``
 
-And verify your tests executing ``./gradlew executeScreenshotTests``
+And verify your tests executing ``./gradlew shots``
 
-![verifying](./art/verifying.gif)
-
-If Shot finds any error in your tests execution the Gradle plugin will show a report as follows:
-
-![errorReport](./art/errorReport.png)
+Shot outputs both composite images and a junit report
 
 You can find the complete Facebook SDK documentation [here](https://facebook.github.io/screenshot-tests-for-android/).
 
@@ -55,24 +46,7 @@ This plugin sets up a few convenience commands you can list executing ``./gradle
   }
 ```
 
-If for some reason you are running your tests on a different machine and you want to skip the instrumentation tests execution and just compare the sources remember you can use the following shot configuration:
 
-```groovy
-  shot {
-    runInstrumentation = false
-  }
-```
-
-The flavor used is the one selected to execute your screenshot tests.
-
-An example could be:
-
-```groovy
-  shot {
-    appId = 'com.my.app'
-    instrumentationTestTask = 'connectedFreeAppDebugAndroidTest'
-  }
-```
 
 The screenshots library needs the ``WRITE_EXTERNAL_STORAGE`` permission. When testing a library, add this permission to the manifest of the instrumentation apk. If you are testing an application, add this permission to the app under test. To grant this permission you can create an ``AndroidManifest.xml`` file inside the ``androidTest`` folder. Here is an example:
 
@@ -139,10 +113,6 @@ public void theActivityIsShownProperly() {
 }
 ```
 
-***You can find a complete example in this repository under the folder named ``shot-consumer`` or review [this kata](https://github.com/Karumi/KataScreenshotAndroid/).***
-
-The [official documentation](https://facebook.github.io/screenshot-tests-for-android).
-
 Now you are ready to record and verify your screenshot tests! 
 
 ## Recording tests
@@ -150,7 +120,7 @@ Now you are ready to record and verify your screenshot tests!
 You can record your screenshot tests executing this command:
 
 ```shell
-./gradlew executeScreenshotTests -Precord
+./gradlew recordShots
 ```
 
 This will execute all your integration tests and it will pull all the generated screenshots into your repository so you can easily add them to the version control system.
@@ -160,34 +130,17 @@ This will execute all your integration tests and it will pull all the generated 
 Once you have a bunch of screenshot tests recorded you can easily verify if the behaviour of your app is the correct one executing this command:
 
 ```shell
-./gradlew executeScreenshotTests
+./gradlew shots
 ```
 
-**After executing your screenshot tests using the Gradle task ``executeScreenshotTests`` a report with all your screenshots will be generated.**
+**After executing your screenshot tests using the Gradle task ``shots`` a report with all your screenshots will be generated.**
 
 ![shotTasksHelp](./art/tasksDescription.png)
 
-[karumilogo]: https://cloud.githubusercontent.com/assets/858090/11626547/e5a1dc66-9ce3-11e5-908d-537e07e82090.png
 
-## Executing tests in multiple devices
-
-If after some time writing screenshot tests your build takes too long to run our recommendation is to run your tests in multiple devices. **Sharding your tests execution will split your test suite into different devices so your tests execution time will be reduced. This feature is not designed to test the UI across different platforms or screen resolutions, to do that we'd recommend you to configure the size of the screenshot taken by modifing the view height and width.** To run your tests in multiple devices you can use [Composer](https://github.com/gojuno/composer) and the official [Gradle Plugin they provide](https://github.com/trevjonez/composer-gradle-plugin). Composer will take all your tests and will split the test suite execution between all the connected devices. **Remember, if you are going to use more than one device all the devices should use the same Android OS and the same screen resolution and density!** Keep also in mind composer needs Gradle 5.4.1 to be able to run your tests using multiple devices.
-
-Once you've configured composer to run your tests you only need to update Shot to use the composer task as the instrumentation test task as follows:
-
-```groovy
-shot {
-  appId = 'YOUR_APPLICATION_ID'
-  instrumentationTestTask = "testDebugComposer"
-}
-```
-
-Take into account the ``instrumentationTestTask`` could be different if you use different flavors or build types. Remember also you should use Shot > 3.0.0 because this feature was introduced in this release!
- 
 ## CI Reporting
 
-Shot generates an HTML report you can review at the end of the recording or verification build. However, if you are running Shot in a CI environment which does not support saving the reporting files generated by the build you can verify your tests using this command ``./gradlew executeScreenshotTests -PprintBase64``. This will change how Shot show comparision errors displaying a command you can copy and paste on your local terminal for every screenshot test failed.
-
+Shot generates a junit xml report you can review at the end of the verification build.
 ## Running only some tests
 
 You can run a single test or test class, just add the `android.testInstrumentationRunnerArguments.class` parameter within your gradle call. This option works for both modes, verification and recording, just remember to add the `-Precord` if you want to do the latter.
@@ -217,7 +170,7 @@ If you have included in your project a dependency to related to the dexmaker and
  
 The Shot plugin automatically detects if you are including a compatible version of the screenshot facebook library in your project and, if it's present, it will not include it again.
  
-**Disclaimer**: The only compatible version of the facebook library is 0.9.0 or any higher version right now, so if you are using any other version we highly encourage to match it with the one Shot is using to avoid problems.
+**Disclaimer**: The only compatible version of the facebook library is 0.11.0 or any higher version right now, so if you are using any other version we highly encourage to match it with the one Shot is using to avoid problems.
 
 ## iOS support
 
